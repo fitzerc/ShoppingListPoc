@@ -1,23 +1,25 @@
 package com.cfitzer.shoppinglist.ui.main
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.shoppingitem_row.*
 import androidx.recyclerview.widget.RecyclerView
 import com.cfitzer.shoppinglist.R
 import kotlinx.android.synthetic.main.shoppingitem_row.view.*
 
-class ShoppingRowAdapter(private val myDataset: Array<String>, private val types: Array<String>) :
-    RecyclerView.Adapter<ShoppingRowAdapter.ShoppingListViewHolder>() {
+class ShoppingRowAdapter(private val myDataset: MutableList<String>, private val types: MutableList<String>) :
+
+    RecyclerView.Adapter<ShoppingRowAdapter.ShoppingListViewHolder>(){
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder.
     // Each data item is just a string in this case that is shown in a TextView.
     class ShoppingListViewHolder(val view: View) : RecyclerView.ViewHolder(view)
-
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(parent: ViewGroup,
@@ -35,6 +37,21 @@ class ShoppingRowAdapter(private val myDataset: Array<String>, private val types
         // - replace the contents of the view with that element
         holder.view.tvShoppingItem.text = myDataset[position]
         holder.view.tvShoppingItemType.text = types[position]
+
+        holder.view.btnDelete.setOnClickListener {
+            val item = myDataset[position]
+            removeItemFromView(position)
+            Toast.makeText(it.context, "$item Removed", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun removeItemFromView(position: Int) {
+        myDataset.removeAt(position)
+        types.removeAt(position)
+        notifyItemRemoved(position)
+
+        notifyItemRangeChanged(position, myDataset.size)
+        notifyItemRangeChanged(position, types.size)
     }
 
     // Return the size of your dataset (invoked by the layout manager)

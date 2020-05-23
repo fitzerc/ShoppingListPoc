@@ -37,8 +37,8 @@ class MainFragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         // TODO: Use the ViewModel
 
-        val myDataset = arrayOf("a", "b", "c")
-        val types = arrayOf("d", "e", "f")
+        val myDataset = mutableListOf("Bananas", "Pizza", "Seltzer", "Duct Tape", "Paper Towels", "Frozen Veggies", "Detergent", "Jeans", "T-Shirt", "Clean Programming")
+        val types = mutableListOf("Grocery", "Grocery", "Grocery", "Hardware", "Costco", "Costco", "Costco", "Clothing", "Clothing", "Bookstore")
 
         viewManager = LinearLayoutManager(this.context)
         viewAdapter = ShoppingRowAdapter(myDataset, types)
