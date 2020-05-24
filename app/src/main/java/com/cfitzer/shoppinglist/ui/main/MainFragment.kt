@@ -43,6 +43,15 @@ class MainFragment : Fragment() {
         viewManager = LinearLayoutManager(this.context)
         viewAdapter = ShoppingRowAdapter(myDataset, types)
 
+        this.addItemBtn.setOnClickListener {
+            myDataset.add(myDataset.size, this.addTxt.text.toString())
+            types.add(types.size, this.addTxt.text.toString())
+
+            viewAdapter.notifyDataSetChanged()
+
+            this.addTxt.setText("")
+        }
+
         listView.apply {
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
