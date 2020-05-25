@@ -6,14 +6,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cfitzer.shoppinglist.R
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.android.synthetic.main.shoppingitem_row.*
 
-class MainFragment : Fragment() {
+class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
 
     companion object {
         fun newInstance() = MainFragment()
@@ -24,6 +25,8 @@ class MainFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private var selectedItem = -1
+    private val base_types = arrayOf("Grocery", "Hardware", "Costco", "Clothing", "Bookstore")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,13 +46,26 @@ class MainFragment : Fragment() {
         viewManager = LinearLayoutManager(this.context)
         viewAdapter = ShoppingRowAdapter(myDataset, types)
 
+        this.spinner!!.setOnItemSelectedListener(this)
+
+        // Create an ArrayAdapter using a simple spinner layout and languages array
+        val aa = ArrayAdapter(this.context!!, android.R.layout.simple_spinner_item, base_types)
+        // Set layout to use when the list of choices appear
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        // Set Adapter to Spinner
+        spinner!!.adapter = aa
+
         this.addItemBtn.setOnClickListener {
-            myDataset.add(myDataset.size, this.addTxt.text.toString())
-            types.add(types.size, this.addTxt.text.toString())
+            if (this.selectedItem == -1) {
+                Toast.makeText(it.context, "Select a Type", Toast.LENGTH_LONG).show()
+            }
+            else {
+                myDataset.add(myDataset.size, this.addTxt.text.toString())
+                types.add(types.size, this.base_types[this.selectedItem])
 
-            viewAdapter.notifyDataSetChanged()
-
-            this.addTxt.setText("")
+                viewAdapter.notifyDataSetChanged()
+                this.addTxt.setText("")
+            }
         }
 
         listView.apply {
@@ -65,4 +81,11 @@ class MainFragment : Fragment() {
 
         }
     }
+
+    override fun onItemSelected(arg0: AdapterView<*>, arg1: View, position: Int, id: Long) {
+        this.selectedItem = position
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {}
+
 }
