@@ -8,11 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.cfitzer.shoppinglist.MainViewModelFactory
 import com.cfitzer.shoppinglist.R
-import com.cfitzer.shoppinglist.data.DataAccessorFirebaseImpl
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
 import kotlinx.android.synthetic.main.main_fragment.*
 
@@ -37,31 +36,22 @@ class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewModel = ViewModelProviders.of(this, MainViewModelFactory()).get(MainViewModel::class.java)
 
-        val dataAccess = DataAccessorFirebaseImpl()
-        val baseTypes = dataAccess.arrayOfItemTypes()
-        val items = dataAccess.listOfShoppingListEntries()
+        val baseTypes = viewModel.baseTypes
+        val items = viewModel.items
 
         viewManager = LinearLayoutManager(this.context)
         viewAdapter = ShoppingRowAdapter(items)
 
         this.spinner!!.onItemSelectedListener = this
-        val aa = ArrayAdapter(this.context!!, android.R.layout.simple_spinner_item, baseTypes)
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner!!.adapter = aa
+        spinner!!.adapter = this.GetArrayAdapter(baseTypes)
 
         this.addItemBtn.setOnClickListener {
-            if (this.selectedItem == -1) {
-                Toast.makeText(it.context, "Select a Type", Toast.LENGTH_LONG).show()
-            }
-            else {
-                items.add(items.size, ShoppingListEntry(this.addTxt.text.toString(), baseTypes[this.selectedItem]))
+            items.add(items.size, ShoppingListEntry(this.addTxt.text.toString(), baseTypes[this.selectedItem]))
 
-                viewAdapter.notifyDataSetChanged()
-                this.addTxt.setText("")
-            }
+            viewAdapter.notifyDataSetChanged()
+            this.addTxt.setText("")
         }
 
         listView.apply {
@@ -77,4 +67,9 @@ class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onNothingSelected(parent: AdapterView<*>?) {}
 
+    private fun GetArrayAdapter(baseTypes: Array<String>): ArrayAdapter<String>{
+        val aa = ArrayAdapter(this.context!!, android.R.layout.simple_spinner_item, baseTypes)
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        return aa
+    }
 }
