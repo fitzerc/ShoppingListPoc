@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.cfitzer.shoppinglist.R
+import com.cfitzer.shoppinglist.data.DataAccessor
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
 import kotlinx.android.synthetic.main.shoppingitem_row.view.*
 
-class ShoppingRowAdapter(private val items: MutableList<ShoppingListEntry>) :
+class ShoppingRowAdapter(private val items: MutableList<ShoppingListEntry>, private val viewModel: MainViewModel) :
 
     RecyclerView.Adapter<ShoppingRowAdapter.ShoppingListViewHolder>(){
 
@@ -34,6 +35,7 @@ class ShoppingRowAdapter(private val items: MutableList<ShoppingListEntry>) :
     }
 
     private fun removeItemFromView(position: Int) {
+        viewModel.DeleteShoppingListItem(items[position])
         items.removeAt(position)
         notifyItemRemoved(position)
 

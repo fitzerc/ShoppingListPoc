@@ -42,13 +42,17 @@ class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
         val items = viewModel.items
 
         viewManager = LinearLayoutManager(this.context)
-        viewAdapter = ShoppingRowAdapter(items)
+        viewAdapter = ShoppingRowAdapter(items, viewModel)
 
         this.spinner!!.onItemSelectedListener = this
         spinner!!.adapter = this.GetArrayAdapter(baseTypes)
 
         this.addItemBtn.setOnClickListener {
-            items.add(items.size, ShoppingListEntry(this.addTxt.text.toString(), baseTypes[this.selectedItem]))
+            val name = this.addTxt.text.toString()
+            val type = baseTypes[this.selectedItem]
+
+            items.add(items.size, ShoppingListEntry(name, type))
+            viewModel.WriteShoppingListItem(ShoppingListEntry(name, type))
 
             viewAdapter.notifyDataSetChanged()
             this.addTxt.setText("")
