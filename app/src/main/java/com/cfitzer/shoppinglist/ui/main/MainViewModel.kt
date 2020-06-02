@@ -1,5 +1,7 @@
 package com.cfitzer.shoppinglist.ui.main
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.cfitzer.shoppinglist.data.DataAccessor
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
@@ -14,5 +16,9 @@ class MainViewModel (private val dataAccessor: DataAccessor) : ViewModel() {
 
     fun DeleteShoppingListItem(entry: ShoppingListEntry) {
         dataAccessor.deleteShoppingListEntry(entry)
+    }
+
+    fun getItems(): LiveData<MutableList<ShoppingListEntry>> {
+        return dataAccessor.listOfShoppingListEntries()
     }
 }
