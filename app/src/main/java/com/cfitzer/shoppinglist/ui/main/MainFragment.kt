@@ -1,5 +1,7 @@
 package com.cfitzer.shoppinglist.ui.main
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cfitzer.shoppinglist.MainViewModelFactory
 import com.cfitzer.shoppinglist.R
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.launch
 
@@ -24,6 +29,7 @@ class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
         fun newInstance() = MainFragment()
     }
 
+    private val RC_SIGN_IN = 123
     private lateinit var viewModel: MainViewModel
 
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
@@ -41,38 +47,64 @@ class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this, MainViewModelFactory()).get(MainViewModel::class.java)
 
-        val baseTypes = viewModel.baseTypes
-        //val items = viewModel.items
-        var items = mutableListOf(ShoppingListEntry("Loading Items", ""))
+        val providers = arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build())
 
-        viewManager = LinearLayoutManager(this.context)
-        viewAdapter = ShoppingRowAdapter(items, viewModel)
+        // Create and launch sign-in intent
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(), RC_SIGN_IN)
+    }
 
-        this.spinner!!.onItemSelectedListener = this
-        spinner!!.adapter = this.GetArrayAdapter(baseTypes)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        this.addItemBtn.setOnClickListener {
-            val name = this.addTxt.text.toString()
-            val type = baseTypes[this.selectedItem]
+        if (requestCode == RC_SIGN_IN) {
+            val response = IdpResponse.fromResultIntent(data)
 
-            items.add(items.size, ShoppingListEntry(name, type))
-            viewModel.WriteShoppingListItem(ShoppingListEntry(name, type))
+            if (resultCode == Activity.RESULT_OK) {
+                // Successfully signed in
+                val user = FirebaseAuth.getInstance().currentUser
+                val baseTypes = viewModel.baseTypes
+                var items = mutableListOf(ShoppingListEntry("Loading Items", ""))
 
-            viewAdapter.notifyDataSetChanged()
-            this.addTxt.setText("")
+                viewManager = LinearLayoutManager(this.context)
+                viewAdapter = ShoppingRowAdapter(items, viewModel)
+
+                this.spinner!!.onItemSelectedListener = this
+                spinner!!.adapter = this.GetArrayAdapter(baseTypes)
+
+                this.addItemBtn.setOnClickListener {
+                    val name = this.addTxt.text.toString()
+                    val type = baseTypes[this.selectedItem]
+
+                    items.add(items.size, ShoppingListEntry(name, type))
+                    viewModel.WriteShoppingListItem(ShoppingListEntry(name, type))
+
+                    viewAdapter.notifyDataSetChanged()
+                    this.addTxt.setText("")
+                }
+
+                listView.apply {
+                    setHasFixedSize(true)
+                    layoutManager = viewManager
+                    adapter = viewAdapter
+                }
+
+                viewModel.getItems().observe(this, Observer { it ->
+                    items.removeAt(0)
+                    it.map { x -> items.add(x) }
+                    viewAdapter.notifyDataSetChanged()
+                })
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
         }
-
-        listView.apply {
-            setHasFixedSize(true)
-            layoutManager = viewManager
-            adapter = viewAdapter
-        }
-
-        viewModel.getItems().observe(this, Observer { it ->
-            items.removeAt(0)
-            it.map { x -> items.add(x) }
-            viewAdapter.notifyDataSetChanged()
-        })
     }
 
     override fun onItemSelected(arg0: AdapterView<*>, arg1: View, position: Int, id: Long) {
