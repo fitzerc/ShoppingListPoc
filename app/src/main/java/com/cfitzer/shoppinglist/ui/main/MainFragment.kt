@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cfitzer.shoppinglist.MainViewModelFactory
 import com.cfitzer.shoppinglist.R
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
+import com.cfitzer.shoppinglist.ui.main.touchhelper.SimpleItemTouchHelperCallback
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth

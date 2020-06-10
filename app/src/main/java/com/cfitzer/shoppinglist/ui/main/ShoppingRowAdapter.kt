@@ -4,12 +4,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.Callback.makeMovementFlags
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.cfitzer.shoppinglist.R
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
+import com.cfitzer.shoppinglist.ui.main.touchhelper.ItemTouchHelperAdapter
 import kotlinx.android.synthetic.main.shoppingitem_row.view.*
 import java.util.*
 
@@ -38,23 +36,6 @@ class ShoppingRowAdapter(private val items: MutableList<ShoppingListEntry>, priv
         }
     }
 
-    fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: ViewHolder?): Int {
-        val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
-        return makeMovementFlags(
-            dragFlags,
-            swipeFlags
-        )
-    }
-
-    fun isLongPressDragEnabled(): Boolean {
-        return true
-    }
-
-    fun isItemViewSwipeEnabled(): Boolean {
-        return false
-    }
-
     private fun removeItemFromView(position: Int) {
         viewModel.DeleteShoppingListItem(items[position])
         items.removeAt(position)
@@ -78,37 +59,4 @@ class ShoppingRowAdapter(private val items: MutableList<ShoppingListEntry>, priv
         }
         notifyItemMoved(fromPosition, toPosition)
     }
-}
-
-class SimpleItemTouchHelperCallback(private val mAdapter: ItemTouchHelperAdapter) :
-    ItemTouchHelper.Callback() {
-    override fun isLongPressDragEnabled(): Boolean {
-        return true
-    }
-
-    override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun isItemViewSwipeEnabled(): Boolean {
-        return false
-    }
-
-    override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
-        val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
-        return makeMovementFlags(
-            dragFlags,
-            swipeFlags
-        )
-    }
-
-    override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder, target: ViewHolder): Boolean {
-        mAdapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-        return true
-    }
-}
-
-interface ItemTouchHelperAdapter {
-    fun onItemMove(fromPosition: Int, toPosition: Int)
 }
