@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cfitzer.shoppinglist.MainViewModelFactory
@@ -21,7 +21,7 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.coroutines.launch
+
 
 class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
 
@@ -97,6 +97,11 @@ class MainFragment() : Fragment(), AdapterView.OnItemSelectedListener {
                     it.map { x -> items.add(x) }
                     viewAdapter.notifyDataSetChanged()
                 })
+
+                val callback: ItemTouchHelper.Callback = SimpleItemTouchHelperCallback(viewAdapter as ShoppingRowAdapter)
+                val touchHelper = ItemTouchHelper(callback)
+                touchHelper.attachToRecyclerView(listView)
+
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
