@@ -7,6 +7,7 @@ import com.cfitzer.shoppinglist.data.DataAccessor
 import com.cfitzer.shoppinglist.models.ShoppingListEntry
 
 class MainViewModel (private val dataAccessor: DataAccessor) : ViewModel() {
+    public val DEFAULT_ITEM_NAME = "Loading Items"
     val baseTypes = dataAccessor.arrayOfItemTypes()
     val items = dataAccessor.listOfShoppingListEntries()
 
